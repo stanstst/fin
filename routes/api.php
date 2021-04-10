@@ -1,7 +1,10 @@
 <?php
 
+use App\Models\Transaction;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +17,42 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::middleware('auth:api')->get(
+    '/user',
+    function (Request $request) {
+        return $request->user();
+    }
+);
+
+Route::get(
+    'transactions',
+    function (Request $request) {
+
+        try {
+            // todo this must be put via serializer with groups in order to avoid payload overhead with all the fields in all the relations
+            return Transaction::with(['account', 'account.user'])->get();
+
+        } catch (Throwable $e) {
+            return new JsonResponse(null, Response::HTTP_BAD_GATEWAY);
+        }
+    }
+);
+
+Route::get(
+    'transactions/{id}',
+    function (int $id) {
+        try {
+            $transaction = Transaction::with(['account', 'account.user'])->find($id);
+
+            if (empty($transaction)) {
+                return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+            }
+
+        } catch (Throwable $e) {
+            return new JsonResponse(null, Response::HTTP_BAD_GATEWAY);
+        }
+
+        return $transaction;
+    }
+);
+
