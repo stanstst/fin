@@ -5,15 +5,18 @@ namespace Database\Seeders;
 use App\Models\Transaction;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class TransactionSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      *
      * @return void
      */
     public function run()
     {
-        Transaction::factory(10)->create();
+
+        Transaction::factory()
+            ->count(10)
+            ->create();
     }
 }
