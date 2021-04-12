@@ -30,7 +30,7 @@ services:
             MYSQL_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         volumes:
-            - 'sailmysql:/var/lib/mysql'
+            - './storage/mysql:/var/lib/mysql'
         networks:
             - sail
         healthcheck:
