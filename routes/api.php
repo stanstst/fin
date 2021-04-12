@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TransactionController;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,19 +25,7 @@ Route::middleware('auth:api')->get(
     }
 );
 
-Route::get(
-    'transactions',
-    function (Request $request) {
-
-        try {
-            // todo this must be put via serializer with groups in order to avoid payload overhead with all the fields in all the relations
-            return Transaction::with(['account', 'account.user'])->get();
-
-        } catch (Throwable $e) {
-            return new JsonResponse(null, Response::HTTP_BAD_GATEWAY);
-        }
-    }
-);
+Route::get('transactions/{sort?}', [TransactionController::class, 'get']);
 
 Route::get(
     'transactions/{id}',
