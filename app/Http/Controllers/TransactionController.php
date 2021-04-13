@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ParkingTicket;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -16,7 +21,10 @@ class TransactionController extends Controller
 
     public function get(string $sort = 'id')
     {
-        $query = Transaction::with(['account', 'account.user'])->orderBy('id', $sort === self::SORT_ID_DESC ? 'desc' : 'asc');
+        $query = Transaction::with(['account', 'account.user'])->orderBy(
+            'id',
+            $sort === self::SORT_ID_DESC ? 'desc' : 'asc'
+        );
 
         if ($sort === self::SORT_USER_ASC || $sort === self::SORT_USER_DESC) {
             $query = Transaction::with(['account', 'account.user'])
@@ -34,4 +42,45 @@ class TransactionController extends Controller
         }
     }
 
+    public function create(Request $request)
+    {
+        try {
+            $request->validate(
+                [
+                    'amount' => [
+                        'required',
+                        'numeric',
+                        'gt:0',
+                    ],
+                    'type' => [
+                        'required',
+                        Rule::in(Transaction::TYPES),
+
+                    ],
+                    'account_id' => [
+                        'required',
+                        Rule::exists('user_transaction_accounts', 'id'),
+                    ],
+                ]
+            );
+
+            $transaction = Transaction::create(
+                [
+                    'amount' => $request->amount,
+                    'type' => $request->type,
+                    'account_id' => $request->account_id,
+                ]
+            );
+
+            $transaction->save();
+        } catch (ValidationException $exception) {
+
+            return new JsonResponse(['errors' => $exception->errors(), Response::HTTP_BAD_REQUEST]);
+        } catch (Throwable $exception) {
+
+            return new JsonResponse(['Error creating transaction', Response::HTTP_BAD_GATEWAY]);
+        }
+
+        return new JsonResponse($transaction);
+    }
 }

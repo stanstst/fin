@@ -45,3 +45,4 @@ Route::get(
     }
 );
 
+Route::post('transactions', [TransactionController::class, 'create']);
