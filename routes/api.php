@@ -28,7 +28,7 @@ Route::middleware('auth:api')->get(
 Route::get('transactions/{sort?}', [TransactionController::class, 'get']);
 
 Route::get(
-    'transactions/{id}',
+    'transaction/{id}',
     function (int $id) {
         try {
             $transaction = Transaction::with(['account', 'account.user'])->find($id);
@@ -45,4 +45,8 @@ Route::get(
     }
 );
 
-Route::post('transactions', [TransactionController::class, 'create']);
+Route::post('transaction', [TransactionController::class, 'create']);
+
+Route::put('transaction', [TransactionController::class, 'update']);
+
+Route::delete('transaction/{id}', [TransactionController::class, 'delete']);

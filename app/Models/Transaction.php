@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 /** @property float $amount */
 /** @property string $type */
+/** @property string $account_id */
 /** @property UserTransactionAccount $account */
 /** @method static Transaction create(array $props) */
+/** @method static Transaction find(int $id) */
 class Transaction extends Model
 {
     use HasFactory;
